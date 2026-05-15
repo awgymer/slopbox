@@ -1,7 +1,4 @@
 _subdirectory: template
-_skip_if_exists:
-  - devcontainer.env
-
 devcontainer_root:
   type: str
   default: .devcontainer
