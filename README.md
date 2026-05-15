@@ -21,7 +21,7 @@ copier copy gh:awgymer/slopbox .
 
 Copier will ask for a parent directory (default: `.devcontainer`) and a container name (default: `claude`), then install the files into `<devcontainer_root>/<name>/`.
 
-Then open `devcontainer.env` at your project root and fill in your values:
+Add `devcontainer.env` to your `.gitignore`, then open it at your project root and fill in your values:
 
 ```
 GH_TOKEN=           # GitHub personal access token

@@ -12,5 +12,19 @@ container_name:
   default: claude
   help: Name for the devcontainer (used as the subdirectory name and VS Code display name)
 
-_tasks:
-  - ["bash", "-c", "grep -qF 'devcontainer.env' .gitignore 2>/dev/null || echo 'devcontainer.env' >> .gitignore"]
+_message_after_copy: |
+  Devcontainer installed to {{ devcontainer_root }}/{{ container_name }}/
+
+  Next steps:
+    1. Add devcontainer.env to your .gitignore
+    2. Fill in devcontainer.env at your project root with your credentials:
+         GH_TOKEN=           # GitHub personal access token
+         GIT_AUTHOR_NAME=    # Your name
+         GIT_AUTHOR_EMAIL=   # Your email
+         GIT_COMMITTER_NAME=
+         GIT_COMMITTER_EMAIL=
+    3. Open the project in VS Code and select "Reopen in Container"
+
+_message_after_update: |
+  Devcontainer updated. Your local changes have been merged with the template.
+  devcontainer.env was not modified.
