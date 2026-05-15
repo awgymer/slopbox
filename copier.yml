@@ -1,0 +1,16 @@
+_subdirectory: template
+_skip_if_exists:
+  - devcontainer.env
+
+devcontainer_root:
+  type: str
+  default: .devcontainer
+  help: Parent directory for the devcontainer files
+
+container_name:
+  type: str
+  default: claude
+  help: Name for the devcontainer (used as the subdirectory name and VS Code display name)
+
+_tasks:
+  - ["bash", "-c", "grep -qF 'devcontainer.env' .gitignore 2>/dev/null || echo 'devcontainer.env' >> .gitignore"]
