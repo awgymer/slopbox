@@ -2,8 +2,21 @@
 set -euo pipefail  # Exit on error, undefined vars, and pipeline failures
 IFS=$'\n\t'        # Stricter word splitting
 
-# 1. Extract Docker DNS info BEFORE any flushing
+# Check for Docker DNS NAT rules before flushing — restoration is not yet implemented
 DOCKER_DNS_RULES=$(iptables-save -t nat | grep "127\.0\.0\.11" || true)
+if [ -n "$DOCKER_DNS_RULES" ]; then
+    echo "ERROR: Docker DNS NAT rules detected — automatic restoration after firewall flush is not implemented"
+    echo "Existing rules:"
+    echo "$DOCKER_DNS_RULES"
+    exit 1
+
+    # TODO: implement restoration of Docker DNS NAT rules
+    # iptables -t nat -N DOCKER_OUTPUT 2>/dev/null || true
+    # iptables -t nat -N DOCKER_POSTROUTING 2>/dev/null || true
+    # while IFS= read -r rule; do
+    #     iptables -t nat $rule
+    # done <<< "$DOCKER_DNS_RULES"
+fi
 
 # Flush existing rules and delete existing ipsets
 iptables -F
@@ -14,15 +27,12 @@ iptables -t mangle -F
 iptables -t mangle -X
 ipset destroy allowed-domains 2>/dev/null || true
 
-# 2. Selectively restore ONLY internal Docker DNS resolution
-if [ -n "$DOCKER_DNS_RULES" ]; then
-    echo "Restoring Docker DNS rules..."
-    iptables -t nat -N DOCKER_OUTPUT 2>/dev/null || true
-    iptables -t nat -N DOCKER_POSTROUTING 2>/dev/null || true
-    echo "$DOCKER_DNS_RULES" | xargs -L 1 iptables -t nat
-else
-    echo "No Docker DNS rules to restore"
-fi
+# Block all IPv6 traffic unconditionally
+ip6tables -F
+ip6tables -X
+ip6tables -P INPUT DROP
+ip6tables -P OUTPUT DROP
+ip6tables -P FORWARD DROP
 
 # First allow DNS and localhost before any restrictions
 # Allow outbound DNS
@@ -42,7 +52,7 @@ ipset create allowed-domains hash:net
 
 # Fetch GitHub meta information and aggregate + add their IP ranges
 echo "Fetching GitHub IP ranges..."
-gh_ranges=$(curl -s https://api.github.com/meta)
+gh_ranges=$(curl -s --max-time 30 https://api.github.com/meta)
 if [ -z "$gh_ranges" ]; then
     echo "ERROR: Failed to fetch GitHub IP ranges"
     exit 1
@@ -74,7 +84,7 @@ for domain in \
     "vscode.blob.core.windows.net" \
     "update.code.visualstudio.com"; do
     echo "Resolving $domain..."
-    ips=$(dig +noall +answer A "$domain" | awk '$4 == "A" {print $5}')
+    ips=$(dig +noall +answer +time=5 +tries=2 A "$domain" | awk '$4 == "A" {print $5}')
     if [ -z "$ips" ]; then
         echo "ERROR: Failed to resolve $domain"
         exit 1
@@ -89,6 +99,28 @@ for domain in \
         ipset add -! allowed-domains "$ip"
     done < <(echo "$ips")
 done
+
+# Resolve and add any user-defined extra allowed domains
+if [ -n "${EXTRA_ALLOWED_DOMAINS:-}" ]; then
+    echo "Processing extra allowed domains..."
+    for domain in $EXTRA_ALLOWED_DOMAINS; do
+        echo "Resolving $domain..."
+        ips=$(dig +noall +answer +time=5 +tries=2 A "$domain" | awk '$4 == "A" {print $5}')
+        if [ -z "$ips" ]; then
+            echo "ERROR: Failed to resolve extra domain $domain"
+            exit 1
+        fi
+
+        while read -r ip; do
+            if [[ ! "$ip" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+                echo "ERROR: Invalid IP from DNS for $domain: $ip"
+                exit 1
+            fi
+            echo "Adding $ip for $domain"
+            ipset add -! allowed-domains "$ip"
+        done < <(echo "$ips")
+    done
+fi
 
 # Get host IP from default route
 HOST_IP=$(ip route | grep default | cut -d" " -f3)

@@ -13,7 +13,3 @@
 
 [log]
     decorate = true
-
-[user]
-    name = <user>
-    email = <email>

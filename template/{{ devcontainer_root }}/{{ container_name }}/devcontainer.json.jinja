@@ -1,19 +1,20 @@
 {
-  "name": "Claude Code Sandbox",
+  "name": "{{ container_name | capitalize }} Sandbox",
   "build": {
     "dockerfile": "Dockerfile",
     "args": {
       "TZ": "${localEnv:TZ:Australia/Adelaide}",
-      "CLAUDE_CODE_VERSION": "latest",
-      "GIT_DELTA_VERSION": "0.18.2",
-      "ZSH_IN_DOCKER_VERSION": "1.2.0"
+      "CLAUDE_CODE_VERSION": "stable",
+      "GIT_DELTA_VERSION": "0.18.2"
     }
   },
   "runArgs": [
     "--cap-add=NET_ADMIN",
     "--cap-add=NET_RAW",
-    "--env-file", "${localWorkspaceFolder}/.devcontainer/claude/devcontainer.env",
-    "--sysctl", "net.ipv6.conf.all.disable_ipv6=1"
+    "--env-file",
+    "${localWorkspaceFolder}/devcontainer.env",
+    "--sysctl",
+    "net.ipv6.conf.all.disable_ipv6=1"
   ],
   "customizations": {
     "vscode": {
@@ -39,18 +40,16 @@
       }
     }
   },
-  "remoteUser": "node",
+  "remoteUser": "claude",
   "mounts": [
     "source=claude-code-bashhistory-${devcontainerId},target=/commandhistory,type=volume",
-    "source=claude-code-config-${devcontainerId},target=/home/node/.claude,type=volume"
+    "source=claude-code-config-${devcontainerId},target=/home/claude/.claude,type=volume"
   ],
   "containerEnv": {
-    "NODE_OPTIONS": "--max-old-space-size=4096",
-    "CLAUDE_CONFIG_DIR": "/home/node/.claude",
-    "POWERLEVEL9K_DISABLE_GITSTATUS": "false"
+    "CLAUDE_CONFIG_DIR": "/home/claude/.claude"
   },
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=delegated",
   "workspaceFolder": "/workspace",
-  "postStartCommand": "sudo /usr/local/bin/init-firewall.sh",
+  "postStartCommand": "/usr/local/bin/startup.sh",
   "waitFor": "postStartCommand"
 }
