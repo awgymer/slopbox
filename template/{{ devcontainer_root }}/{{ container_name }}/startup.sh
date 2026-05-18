@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-sudo /usr/local/bin/init-firewall.sh
+sudo EXTRA_ALLOWED_DOMAINS="${EXTRA_ALLOWED_DOMAINS:-}" /usr/local/bin/init-firewall.sh
 
 if [ -n "${GH_TOKEN:-}" ]; then
     gh auth setup-git
