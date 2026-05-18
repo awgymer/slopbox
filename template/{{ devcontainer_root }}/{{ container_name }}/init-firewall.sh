@@ -100,9 +100,11 @@ for domain in \
 done
 
 # Resolve and add any user-defined extra allowed domains
-if [ -n "${EXTRA_ALLOWED_DOMAINS:-}" ]; then
-    echo "Processing extra allowed domains..."
-    for domain in $EXTRA_ALLOWED_DOMAINS; do
+EXTRA_DOMAINS_FILE="/workspace/.extra-allowed-domains"
+if [ -f "$EXTRA_DOMAINS_FILE" ]; then
+    echo "Processing extra allowed domains from $EXTRA_DOMAINS_FILE..."
+    while IFS= read -r domain || [ -n "$domain" ]; do
+        [[ -z "$domain" || "$domain" == \#* ]] && continue
         echo "Resolving $domain..."
         ips=$(dig +noall +answer +time=5 +tries=2 A "$domain" | awk '$4 == "A" {print $5}')
         if [ -z "$ips" ]; then
@@ -118,7 +120,7 @@ if [ -n "${EXTRA_ALLOWED_DOMAINS:-}" ]; then
             echo "Adding $ip for $domain"
             ipset add -! allowed-domains "$ip"
         done < <(echo "$ips")
-    done
+    done < "$EXTRA_DOMAINS_FILE"
 fi
 
 # Get host IP from default route

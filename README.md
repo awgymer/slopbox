@@ -47,11 +47,15 @@ Commit `.copier-answers.yml` to your repo so teammates can also run `copier upda
 
 ## Firewall
 
-The container restricts outbound traffic to a fixed allowlist on startup. To permit additional domains, add them space-separated to `devcontainer.env`:
+The container restricts outbound traffic to a fixed allowlist on startup. To permit additional domains, add them to `.extra-allowed-domains` at your project root, one per line:
 
 ```
-EXTRA_ALLOWED_DOMAINS="pypi.org api.mycompany.com"
+# .extra-allowed-domains
+pypi.org
+api.mycompany.com
 ```
+
+Lines starting with `#` and blank lines are ignored.
 
 ## Customisation
 
