@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+# User-phase installers. Invoked from the Dockerfile while USER=$USERNAME.
+set -euo pipefail
+IFS=$'\n\t'
+
+{% if 'uv' in installed_tools %}
+# ── uv ────────────────────────────────────────────────────────────────
+curl -LsSf https://astral.sh/uv/install.sh | sh
+# Make uv visible to later steps in this script (non-interactive shell).
+export PATH="$HOME/.local/bin:$PATH"
+{% endif %}
+
+{% if 'nf-test' in installed_tools %}
+# ── nf-test ───────────────────────────────────────────────────────────
+NFT_VERSION="${NFT_VERSION:-0.9.5}"
+# Installer drops the `nf-test` launcher into CWD and writes a `.nf-test/`
+# directory (containing nf-test.jar) into $HOME. Both end up user-owned.
+mkdir -p "$HOME/.local/bin"
+tmpdir=$(mktemp -d) && cd "$tmpdir"
+wget -qO- https://get.nf-test.com | bash
+mv nf-test "$HOME/.local/bin/nf-test"
+chmod +x "$HOME/.local/bin/nf-test"
+cd / && rm -rf "$tmpdir"
+{% endif %}
+
+{% if 'node' in installed_tools %}
+# ── node (via nvm) ────────────────────────────────────────────────────
+NODE_VERSION="${NODE_VERSION:-22}"
+curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.4/install.sh | bash
+export NVM_DIR="$HOME/.nvm"
+# shellcheck disable=SC1091
+source "$NVM_DIR/nvm.sh"
+nvm install "$NODE_VERSION"
+nvm use "$NODE_VERSION"
+{% endif %}
+
+{% if 'nf-core' in installed_tools %}
+# ── nf-core (via uv tool, with prek + pre-commit) ─────────────────────
+NFCORE_VERSION="${NFCORE_VERSION:-3.5.1}"
+uv tool install "nf-core==${NFCORE_VERSION}" \
+  --with-executables-from prek \
+  --with-executables-from pre-commit
+{% endif %}
+
+{% if 'aws-cdk' in installed_tools %}
+# ── AWS CDK (npm global) ──────────────────────────────────────────────
+npm install -g aws-cdk
+{% endif %}
+
+{% if 'nextflow' in installed_tools %}
+# ── Nextflow launcher cache warmup ────────────────────────────────────
+# Pre-pulls the launcher so the firewalled container's first `nextflow run`
+# doesn't need network access.
+nextflow info >/dev/null
+{% endif %}
