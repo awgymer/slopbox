@@ -18,11 +18,12 @@
   ],
   "customizations": {
     "vscode": {
-      "extensions": [
-        "anthropic.claude-code",
-        "esbenp.prettier-vscode",
-        "eamodio.gitlens"
-      ],
+{%- set _exts = ['anthropic.claude-code', 'esbenp.prettier-vscode', 'eamodio.gitlens'] -%}
+{%- if 'uv' in installed_tools %}{%- set _exts = _exts + ['ms-python.python', 'charliermarsh.ruff'] -%}{%- endif %}
+{%- if 'java' in installed_tools %}{%- set _exts = _exts + ['vscjava.vscode-java-pack'] -%}{%- endif %}
+{%- if 'nextflow' in installed_tools %}{%- set _exts = _exts + ['nextflow.nextflow', 'editorconfig.editorconfig', 'gruntfuggly.todo-tree', 'redhat.vscode-yaml', 'mechatroner.rainbow-csv', 'oderwat.indent-rainbow'] -%}{%- endif %}
+{%- if 'awscli' in installed_tools or 'aws-cdk' in installed_tools %}{%- set _exts = _exts + ['amazonwebservices.aws-toolkit-vscode'] -%}{%- endif %}
+      "extensions": {{ _exts | unique | list | tojson }},
       "settings": {
         "editor.formatOnSave": true,
         "editor.defaultFormatter": "esbenp.prettier-vscode",
