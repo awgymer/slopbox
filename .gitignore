@@ -1,3 +1,4 @@
 *.env
-
 .extra-allowed-domains
+
+__pycache__
