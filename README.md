@@ -19,7 +19,12 @@ From your project directory, run:
 copier copy gh:awgymer/slopbox .
 ```
 
-Copier will ask for a parent directory (default: `.devcontainer`) and a container name (default: `claude`), then install the files into `<devcontainer_root>/<name>/`.
+Copier will ask for:
+- a parent directory (default: `.devcontainer`),
+- a container name (default: `claude`),
+- an optional set of extra tools to install (see [Optional tools](#optional-tools)).
+
+The files are installed into `<devcontainer_root>/<name>/`.
 
 Add `devcontainer.env` to your `.gitignore`, then open it at your project root and fill in your values:
 
@@ -32,6 +37,37 @@ GIT_COMMITTER_EMAIL=
 ```
 
 Open the project in VS Code and select **Reopen in Container**.
+
+## Optional tools
+
+During `copier copy` you can multi-select extra tools to install in the container:
+
+- **uv** — Python package manager (Astral)
+- **Java (Temurin 21)** — JDK from Adoptium
+- **nextflow-bundle** — `java`, `nextflow`, `nf-test`, `uv`, `nf-core` (with `prek` and `pre-commit`)
+- **aws-bundle** — `node` (via nvm), `aws-cdk`, `awscli`
+
+Bundles install dependencies automatically; selecting multiple choices dedupes. The resolved atomic tool list is stored as `installed_tools` in `.copier-answers.yml`.
+
+### Version overrides
+
+Defaults are pinned in the installer scripts. To override at build time, pass build args to Docker or edit `build.args` in `devcontainer.json`:
+
+| Tool      | ARG                | Default   |
+|-----------|--------------------|-----------|
+| Nextflow  | `NEXTFLOW_VERSION` | `25.10.4` |
+| nf-test   | `NFT_VERSION`      | `0.9.5`   |
+| nf-core   | `NFCORE_VERSION`   | `3.5.1`   |
+| node      | `NODE_VERSION`     | `22`      |
+
+### Firewall additions
+
+Selecting a tool that needs runtime network access auto-adds the relevant domains to `.extra-allowed-domains`:
+
+- `uv` → `pypi.python.org`, `pypi.org`, `pythonhosted.org`, `files.pythonhosted.org`
+- `node` → `nodejs.org`
+- `nextflow` → `nf-co.re`, `docs.seqera.io`
+- `awscli` → `sts.amazonaws.com` (add service-specific endpoints as needed)
 
 ## Updating
 
@@ -59,6 +95,6 @@ Lines starting with `#` and blank lines are ignored.
 
 ## Customisation
 
-- **Add tools**: install them in the `Dockerfile` after the marked section
+- **Add tools**: pick from the prebuilt set via the `extra_tools` copier question (see [Optional tools](#optional-tools)), or add custom installs in `Dockerfile`
 - **Shell config**: edit `zshrc` in your chosen install directory before starting the container
 - **Prompt**: replace `p10k.zsh` with your own Powerlevel10k config
