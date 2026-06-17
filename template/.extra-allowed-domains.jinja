@@ -1,0 +1,35 @@
+# Extra domains to allow through the egress firewall
+# One domain per line. Lines starting with # are ignored, as are blank lines.
+{%- set _has_tool_domains = 'uv' in installed_tools or 'node' in installed_tools or 'awscli' in installed_tools or 'nextflow' in installed_tools %}
+{% if _has_tool_domains %}
+# ── Auto-added by selected extra_tools ───────────────────────────────
+{% if 'uv' in installed_tools %}
+# uv / pip
+pypi.python.org
+pypi.org
+pythonhosted.org
+files.pythonhosted.org
+{% endif %}
+{% if 'node' in installed_tools %}
+# node / nvm
+nodejs.org
+{% endif %}
+{% if 'nextflow' in installed_tools %}
+# Nextflow ecosystem
+nf-co.re
+docs.seqera.io
+{% endif %}
+{% if 'awscli' in installed_tools %}
+# AWS — minimum for `aws sts get-caller-identity` and CDK bootstrap.
+# Endpoints are region- and service-scoped; add specific entries below
+# as needed.
+sts.amazonaws.com
+# Examples (uncomment as needed):
+# ec2.us-east-1.amazonaws.com
+# s3.us-east-1.amazonaws.com
+# cloudformation.us-east-1.amazonaws.com
+{% endif %}
+{% endif %}
+# Your custom domains:
+#
+# api.mycompany.com
