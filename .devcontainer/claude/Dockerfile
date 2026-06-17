@@ -66,14 +66,33 @@ RUN ARCH=$(dpkg --print-architecture) && \
   dpkg -i /tmp/git-delta.deb && \
   rm /tmp/git-delta.deb
 
+
+# ── Optional tool installers (root phase) ─────────────────────────────
+ARG NEXTFLOW_VERSION=25.10.4
+COPY installers /tmp/installers
+RUN NEXTFLOW_VERSION="$NEXTFLOW_VERSION" \
+    bash /tmp/installers/install-root.sh
+
+
 COPY --chown=$USERNAME:$USERNAME zshrc /home/$USERNAME/.zshrc
 COPY --chown=$USERNAME:$USERNAME p10k.zsh /home/$USERNAME/.p10k.zsh
 COPY --chown=$USERNAME:$USERNAME gitconfig /home/$USERNAME/.gitconfig
 
 USER $USERNAME
+ENV HOME=/home/$USERNAME
 
 # Install Claude Code
 RUN curl -fsSL https://claude.ai/install.sh | bash -s -- "${CLAUDE_CODE_VERSION}"
+
+
+# ── Optional tool installers (user phase) ─────────────────────────────
+ARG NODE_VERSION=22
+ARG NFCORE_VERSION=3.5.1
+ARG NFT_VERSION=0.9.5
+RUN NODE_VERSION="$NODE_VERSION" \
+    NFCORE_VERSION="$NFCORE_VERSION" \
+    NFT_VERSION="$NFT_VERSION" \
+    bash /tmp/installers/install-user.sh
 
 
 ENV SHELL=/bin/zsh
