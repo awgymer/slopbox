@@ -1,5 +1,5 @@
 # Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
-_commit: 23cee40
+_commit: 065881b
 _src_path: gh:awgymer/slopbox
 container_name: claude
 devcontainer_root: .devcontainer
