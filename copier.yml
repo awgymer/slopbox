@@ -9,6 +9,27 @@ container_name:
   default: claude
   help: Name for the devcontainer (used as the subdirectory name and VS Code display name)
 
+extra_tools:
+  type: yaml
+  multiselect: true
+  default: []
+  help: |
+    Optional tools to install in the devcontainer.
+    Bundles install multiple tools at once.
+  choices:
+    "uv (Python package manager)": ["uv"]
+    "Java (Temurin 21)": ["java"]
+    "nextflow-bundle (java, nextflow, nf-test, uv, nf-core)":
+      ["java", "nextflow", "nf-test", "uv", "nf-core"]
+    "aws-bundle (node, aws-cdk, awscli)": ["node", "aws-cdk", "awscli"]
+
+# Derived: flat, deduped list of atomic tools to install. Computed once from
+# extra_tools and stored in .copier-answers.yml. Templates iterate this.
+installed_tools:
+  type: json
+  default: "{{ extra_tools | sum(start=[]) | unique | list | tojson }}"
+  when: false
+
 _message_after_copy: |
   Devcontainer installed to {{ devcontainer_root }}/{{ container_name }}/
 
