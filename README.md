@@ -8,7 +8,7 @@ Based on the [official Anthropic devcontainer example](https://github.com/anthro
 
 - VS Code with the [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
 - Docker
-- [Copier](https://copier.readthedocs.io/) (`pipx install copier`)
+- [Copier](https://copier.readthedocs.io/) (e.g. `uv tool install copier`)
 - A GitHub personal access token with repo access
 
 ## Setup
