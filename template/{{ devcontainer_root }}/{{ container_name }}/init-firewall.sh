@@ -100,7 +100,7 @@ for domain in \
 done
 
 # Resolve and add any user-defined extra allowed domains
-EXTRA_DOMAINS_FILE="/workspace/.extra-allowed-domains"
+EXTRA_DOMAINS_FILE="/workspace/extra-allowed-domains"
 if [ -f "$EXTRA_DOMAINS_FILE" ]; then
     echo "Processing extra allowed domains from $EXTRA_DOMAINS_FILE..."
     while IFS= read -r domain || [ -n "$domain" ]; do

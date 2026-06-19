@@ -62,7 +62,7 @@ Defaults are pinned in the installer scripts. To override at build time, pass bu
 
 ### Firewall additions
 
-Selecting a tool that needs runtime network access auto-adds the relevant domains to `.extra-allowed-domains`:
+Selecting a tool that needs runtime network access auto-adds the relevant domains to `extra-allowed-domains`:
 
 - `uv` → `pypi.python.org`, `pypi.org`, `pythonhosted.org`, `files.pythonhosted.org`
 - `node` → `nodejs.org`
@@ -83,10 +83,10 @@ Commit `.copier-answers.yml` to your repo so teammates can also run `copier upda
 
 ## Firewall
 
-The container restricts outbound traffic to a fixed allowlist on startup. To permit additional domains, add them to `.extra-allowed-domains` at your project root, one per line:
+The container restricts outbound traffic to a fixed allowlist on startup. To permit additional domains, add them to `extra-allowed-domains` at your project root, one per line:
 
 ```
-# .extra-allowed-domains
+# extra-allowed-domains
 pypi.org
 api.mycompany.com
 ```
