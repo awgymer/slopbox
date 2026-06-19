@@ -44,6 +44,7 @@ During `copier copy` you can multi-select extra tools to install in the containe
 
 - **uv** — Python package manager (Astral)
 - **Java (Temurin 21)** — JDK from Adoptium
+- **Rust (rustup)** — Rust toolchain (`rustc`, `cargo`) via rustup
 - **nextflow-bundle** — `java`, `nextflow`, `nf-test`, `uv`, `nf-core` (with `prek` and `pre-commit`)
 - **aws-bundle** — `node` (via nvm), `aws-cdk`, `awscli`
 
@@ -66,6 +67,7 @@ Selecting a tool that needs runtime network access auto-adds the relevant domain
 
 - `uv` → `pypi.python.org`, `pypi.org`, `pythonhosted.org`, `files.pythonhosted.org`
 - `node` → `nodejs.org`
+- `rust` → `static.rust-lang.org`, `crates.io`, `index.crates.io`, `static.crates.io`
 - `nextflow` → `nf-co.re`, `docs.seqera.io`
 - `awscli` → `sts.amazonaws.com` (add service-specific endpoints as needed)
 

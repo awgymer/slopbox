@@ -58,6 +58,16 @@ def test_java_alone(render):
     assert "vscjava.vscode-java-pack" in _extensions(dst)
 
 
+def test_rust_alone(render):
+    dst = render(extra_tools=[["rust"]])
+    assert _answers(dst)["installed_tools"] == ["rust"]
+    assert "https://sh.rustup.rs" in _install_user(dst)
+    fw = _firewall(dst)
+    assert "crates.io" in fw
+    assert "static.rust-lang.org" in fw
+    assert "rust-lang.rust-analyzer" in _extensions(dst)
+
+
 def test_nextflow_bundle(render):
     dst = render(extra_tools=[NEXTFLOW_ATOMS])
     assert set(_answers(dst)["installed_tools"]) == set(NEXTFLOW_ATOMS)

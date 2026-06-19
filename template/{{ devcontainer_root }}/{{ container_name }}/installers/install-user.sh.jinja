@@ -10,6 +10,13 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 export PATH="$HOME/.local/bin:$PATH"
 {% endif %}
 
+{% if 'rust' in installed_tools %}
+# ── Rust (rustup) ─────────────────────────────────────────────────────
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+# Make cargo visible to later steps in this script (non-interactive shell).
+export PATH="$HOME/.cargo/bin:$PATH"
+{% endif %}
+
 {% if 'nf-test' in installed_tools %}
 # ── nf-test ───────────────────────────────────────────────────────────
 NFT_VERSION="${NFT_VERSION:-0.9.5}"

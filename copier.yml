@@ -23,6 +23,7 @@ extra_tools:
   choices:
     "uv (Python package manager)": ["uv"]
     "Java (Temurin 21)": ["java"]
+    "Rust (rustup)": ["rust"]
     "nextflow-bundle (java, nextflow, nf-test, uv, nf-core)":
       ["java", "nextflow", "nf-test", "uv", "nf-core"]
     "aws-bundle (node, aws-cdk, awscli)": ["node", "aws-cdk", "awscli"]
