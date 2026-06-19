@@ -2,7 +2,6 @@ _subdirectory: template
 
 _skip_if_exists:
   - devcontainer.env
-  - .extra-allowed-domains
 
 devcontainer_root:
   type: str

@@ -19,7 +19,7 @@ def _install_user(dst):
 
 
 def _firewall(dst):
-    return (dst / ".extra-allowed-domains").read_text()
+    return (dst / "extra-allowed-domains").read_text()
 
 
 def _extensions(dst):
