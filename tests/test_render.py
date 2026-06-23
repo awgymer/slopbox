@@ -111,6 +111,7 @@ def test_aws_bundle(render):
 
     fw = _firewall(dst)
     assert "sts.amazonaws.com" in fw
+    assert "docs.aws.amazon.com" in fw
     assert "nodejs.org" in fw
 
     assert "amazonwebservices.aws-toolkit-vscode" in _extensions(dst)

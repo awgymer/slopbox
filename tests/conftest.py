@@ -19,6 +19,10 @@ def render(tmp_path):
             overwrite=True,
             unsafe=True,
             quiet=True,
+            # Render the current working tree (HEAD + uncommitted changes)
+            # rather than copier's default of the latest git tag, so tests
+            # validate in-development template changes.
+            vcs_ref="HEAD",
         )
         return tmp_path
 
