@@ -7,7 +7,7 @@ ARG CLAUDE_CODE_VERSION=stable
 ARG GIT_DELTA_VERSION=0.18.2
 ARG USERNAME=claude
 
-# Install basic development tools and iptables/ipset
+# Install basic development tools
 RUN apt-get update && apt-get install -y --no-install-recommends \
   ca-certificates \
   less \
@@ -19,17 +19,22 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   man-db \
   unzip \
   gnupg2 \
-  iptables \
-  ipset \
-  iproute2 \
-  dnsutils \
-  aggregate \
   jq \
   nano \
   vim \
   curl \
   wget \
   && apt-get clean && rm -rf /var/lib/apt/lists/*
+{% if enable_firewall %}
+# iptables/ipset tooling for the egress firewall
+RUN apt-get update && apt-get install -y --no-install-recommends \
+  iptables \
+  ipset \
+  iproute2 \
+  dnsutils \
+  aggregate \
+  && apt-get clean && rm -rf /var/lib/apt/lists/*
+{% endif %}
 
 # Install gh cli latest stable
 RUN mkdir -p -m 755 /etc/apt/keyrings \
@@ -100,11 +105,17 @@ ENV SHELL=/bin/zsh
 # Install powerlevel10k theme
 RUN git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/powerlevel10k
 
+{% if enable_firewall %}
 # Copy and set up firewall and startup scripts
 COPY init-firewall.sh startup.sh /usr/local/bin/
 USER root
 RUN chmod +x /usr/local/bin/init-firewall.sh /usr/local/bin/startup.sh && \
   echo "$USERNAME ALL=(root) NOPASSWD: /usr/local/bin/init-firewall.sh" > /etc/sudoers.d/$USERNAME-firewall && \
   chmod 0440 /etc/sudoers.d/$USERNAME-firewall
-
+{% else %}
+# Copy and set up startup script
+COPY startup.sh /usr/local/bin/
+USER root
+RUN chmod +x /usr/local/bin/startup.sh
+{% endif %}
 USER $USERNAME

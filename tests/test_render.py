@@ -27,6 +27,19 @@ def _extensions(dst):
     return spec["customizations"]["vscode"]["extensions"]
 
 
+def _run_args(dst):
+    spec = json.loads((dst / ".devcontainer/claude/devcontainer.json").read_text())
+    return spec["runArgs"]
+
+
+def _dockerfile(dst):
+    return (dst / ".devcontainer/claude/Dockerfile").read_text()
+
+
+def _startup(dst):
+    return (dst / ".devcontainer/claude/startup.sh").read_text()
+
+
 def test_empty_selection(render):
     dst = render(extra_tools=[])
     assert _answers(dst)["installed_tools"] == []
@@ -127,3 +140,45 @@ def test_uv_plus_nextflow_bundle_dedupes(render):
 def test_both_bundles(render):
     dst = render(extra_tools=[NEXTFLOW_ATOMS, AWS_ATOMS])
     assert set(_answers(dst)["installed_tools"]) == set(NEXTFLOW_ATOMS) | set(AWS_ATOMS)
+
+
+def test_firewall_enabled_by_default(render):
+    dst = render(extra_tools=[])
+    assert (dst / ".devcontainer/claude/init-firewall.sh").exists()
+    assert (dst / "extra-allowed-domains").exists()
+
+    df = _dockerfile(dst)
+    assert "iptables" in df
+    assert "init-firewall.sh" in df
+
+    run_args = _run_args(dst)
+    assert "--cap-add=NET_ADMIN" in run_args
+    assert "--cap-add=NET_RAW" in run_args
+
+    assert "init-firewall.sh" in _startup(dst)
+
+
+def test_firewall_disabled(render):
+    dst = render(extra_tools=[], enable_firewall=False)
+    # Firewall script, its tooling, and the extra-domains file are omitted
+    assert not (dst / ".devcontainer/claude/init-firewall.sh").exists()
+    assert not (dst / "extra-allowed-domains").exists()
+
+    df = _dockerfile(dst)
+    assert "iptables" not in df
+    assert "ipset" not in df
+    assert "init-firewall.sh" not in df
+    # startup.sh is still installed, just without the firewall invocation
+    assert "COPY startup.sh /usr/local/bin/" in df
+
+    run_args = _run_args(dst)
+    assert "--cap-add=NET_ADMIN" not in run_args
+    assert "--cap-add=NET_RAW" not in run_args
+
+    assert "init-firewall.sh" not in _startup(dst)
+
+
+def test_firewall_disabled_keeps_tool_domains_out(render):
+    # extra-allowed-domains must not be generated even when tools request it
+    dst = render(extra_tools=[["uv"]], enable_firewall=False)
+    assert not (dst / "extra-allowed-domains").exists()

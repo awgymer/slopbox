@@ -1,8 +1,8 @@
 #!/bin/bash
 set -euo pipefail
-
+{% if enable_firewall %}
 sudo /usr/local/bin/init-firewall.sh
-
+{% endif %}
 if [ -n "${GH_TOKEN:-}" ]; then
     gh auth setup-git
 else
