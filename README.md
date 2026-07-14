@@ -22,6 +22,7 @@ copier copy gh:awgymer/slopbox .
 Copier will ask for:
 - a parent directory (default: `.devcontainer`),
 - a container name (default: `claude`),
+- whether to enable the egress firewall (default: yes — see [Firewall](#firewall)),
 - an optional set of extra tools to install (see [Optional tools](#optional-tools)).
 
 The files are installed into `<devcontainer_root>/<name>/`.
@@ -85,7 +86,7 @@ Commit `.copier-answers.yml` to your repo so teammates can also run `copier upda
 
 ## Firewall
 
-The container restricts outbound traffic to a fixed allowlist on startup. To permit additional domains, add them to `extra-allowed-domains` at your project root, one per line:
+By default the container restricts outbound traffic to a fixed allowlist on startup. To permit additional domains, add them to `extra-allowed-domains` at your project root, one per line:
 
 ```
 # extra-allowed-domains
@@ -94,6 +95,10 @@ api.mycompany.com
 ```
 
 Lines starting with `#` and blank lines are ignored.
+
+### Disabling the firewall
+
+Answer `no` to the `enable_firewall` question (or set `enable_firewall: false` in `.copier-answers.yml` and run `copier update`) to give the container unrestricted network access. When disabled, the firewall script, its `iptables`/`ipset` tooling, the `NET_ADMIN`/`NET_RAW` capabilities, and the `extra-allowed-domains` file are all omitted.
 
 ## Customisation
 

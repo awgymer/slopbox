@@ -13,6 +13,16 @@ container_name:
   default: claude
   help: Name for the devcontainer (used as the subdirectory name and VS Code display name)
 
+enable_firewall:
+  type: bool
+  default: true
+  help: |
+    Restrict container network egress with an iptables/ipset firewall that
+    only allows GitHub, Anthropic, and a curated set of domains (plus any in
+    extra-allowed-domains). Disable to give the container unrestricted network
+    access — the firewall script, its tooling, and the NET_ADMIN/NET_RAW
+    capabilities are then omitted entirely.
+
 extra_tools:
   type: yaml
   multiselect: true

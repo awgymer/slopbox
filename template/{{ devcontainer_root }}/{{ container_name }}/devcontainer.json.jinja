@@ -9,8 +9,10 @@
     }
   },
   "runArgs": [
+{%- if enable_firewall %}
     "--cap-add=NET_ADMIN",
     "--cap-add=NET_RAW",
+{%- endif %}
     "--env-file",
     "${localWorkspaceFolder}/devcontainer.env",
     "--sysctl",
